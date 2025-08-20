@@ -500,22 +500,21 @@ function collectData() {
         }, 0)
     })
 
-    console.timeEnd("all")
     const timeoutPromise = new Promise((resolve) => {
-        setTimeout(resolve, 1000)
+        setTimeout(resolve, 100)
     })
 
-    //Promise.race([Promise.allSettled([uaPromise, screenPromise, canvasFpPromise, mathFpPromise, webglFpPromise, audioFpPromise]), timeoutPromise]).then((results) => {
-    /*     Promise.race([Promise.allSettled([uaPromise, screenPromise]), timeoutPromise]).then((results) => {
-            if (Array.isArray(results)) {
-                const fulFilledResults = results.filter(result => result.status === 'fulfilled')
-                    .map(result => result.value);
-                fullstr = fulFilledResults.join('\n')
-                console.log("full str " + fullstr)
-                const displayElement = document.getElementById('visitor-id-display')
-                displayElement.textContent = "Collect Result: \n" + fullstr
-            }
-        }) */
+    Promise.race([Promise.allSettled([uaPromise, screenPromise, canvasFpPromise, mathFpPromise, webglFpPromise, audioFpPromise]), timeoutPromise]).then((results) => {
+        if (Array.isArray(results)) {
+            const fulFilledResults = results.filter(result => result.status === 'fulfilled')
+                .map(result => result.value);
+            fullstr = fulFilledResults.join('\n')
+            console.log("full str " + fullstr)
+            const displayElement = document.getElementById('visitor-id-display')
+            displayElement.textContent = "Collect Result: \n" + fullstr
+        }
+    })
+        console.timeEnd("all")
 }
 
 //collectData()
