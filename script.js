@@ -486,10 +486,17 @@ console.log("startRenderingAudio3")
     }
 
     //collectData()
-    requestAnimationFrame(()=> {
-        requestAnimationFrame(collectData)
-    })
+    //requestAnimationFrame(()=> {
+    //    requestAnimationFrame(collectData)
+    //})
 //})
+
+
+window.onload = function() {
+    // 你的代码在页面加载完成后执行
+    console.log('页面加载完成，FCP之后');
+    collectData()
+};
 
 ////////utils//////////////
 
