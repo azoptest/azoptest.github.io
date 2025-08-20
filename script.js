@@ -420,28 +420,22 @@ console.log("startRenderingAudio3")
         })
 
         const canvasFpPromise = new Promise((resolve) => {
-            console.log("call canvasFpPromise")
             startTime = performance.now()
             result = JSON.stringify(getCanvasFp())
-            console.log("canvasFpPromise end")
             endTime = performance.now()
             resolve("CanvasFp: " + result + " cost: " + (endTime - startTime) + "ms")
         })
 
         const mathFpPromise = new Promise((resolve) => {
-            console.log("call mathFpPromise")
             startTime = performance.now()
             result = getMathFp()
-              console.log("mathFpPromise end")
             endTime = performance.now()
             resolve("MathFp: " + result + " cost: " + (endTime - startTime) + "ms")
         })
 
         const webglFpPromise = new Promise((resolve) => {
-            console.log("call webgl")
             startTime = performance.now()
             result = JSON.stringify(getWebGlExtensions())
-              console.log("webglFpPromise end")
             endTime = performance.now()
             resolve("WebglFp: " + result + " cost: " + (endTime - startTime) + "ms")
         })
@@ -491,12 +485,21 @@ console.log("startRenderingAudio3")
     //})
 //})
 
+if ('PerformanceObserver' in window) {
+    const observer = new PerformanceObserver((list) => {
+        const entries = list.getEntriesByType('paint');
+        entries.forEach(entry => {
+            if (entry.name === 'first-contentful-paint') {
+                console.log('FCP 发生，准备执行你的函数');
+                // 在 FCP 后执行你的函数
+                collectData();
+            }
+        });
+    });
 
-window.onload = function() {
-    // 你的代码在页面加载完成后执行
-    console.log('页面加载完成，FCP之后');
-    collectData()
-};
+    observer.observe({ type: 'paint', buffered: true });
+}
+
 
 ////////utils//////////////
 
