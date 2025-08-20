@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+//document.addEventListener('DOMContentLoaded', function () {
     console.log("start script.")
 
     function getBrowserUA() {
@@ -420,22 +420,28 @@ console.log("startRenderingAudio3")
         })
 
         const canvasFpPromise = new Promise((resolve) => {
+            console.log("call canvasFpPromise")
             startTime = performance.now()
             result = JSON.stringify(getCanvasFp())
+            console.log("canvasFpPromise end")
             endTime = performance.now()
             resolve("CanvasFp: " + result + " cost: " + (endTime - startTime) + "ms")
         })
 
         const mathFpPromise = new Promise((resolve) => {
+            console.log("call mathFpPromise")
             startTime = performance.now()
             result = getMathFp()
+              console.log("mathFpPromise end")
             endTime = performance.now()
             resolve("MathFp: " + result + " cost: " + (endTime - startTime) + "ms")
         })
 
         const webglFpPromise = new Promise((resolve) => {
+            console.log("call webgl")
             startTime = performance.now()
             result = JSON.stringify(getWebGlExtensions())
+              console.log("webglFpPromise end")
             endTime = performance.now()
             resolve("WebglFp: " + result + " cost: " + (endTime - startTime) + "ms")
         })
@@ -464,7 +470,7 @@ console.log("startRenderingAudio3")
         })
 
         const timeoutPromise = new Promise((resolve) => {
-            setTimeout(resolve, 100)
+            setTimeout(resolve, 1000)
         })
 
         Promise.race([Promise.allSettled([uaPromise, screenPromise, canvasFpPromise, mathFpPromise, webglFpPromise, audioFpPromise]), timeoutPromise]).then((results) => {
@@ -479,8 +485,11 @@ console.log("startRenderingAudio3")
         })
     }
 
-    collectData()
-})
+    //collectData()
+    requestAnimationFrame(()=> {
+        requestAnimationFrame(collectData)
+    })
+//})
 
 ////////utils//////////////
 
