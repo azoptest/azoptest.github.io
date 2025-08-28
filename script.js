@@ -516,6 +516,7 @@ function collectData() {
             const fulFilledResults = results.filter(result => result.status === 'fulfilled')
                 .map(result => result.value);
             fullstr = fulFilledResults.join('\n')
+            fullstr = fullstr + "\n" + "architecture: " + architectureFlag + "\n"
             console.log("full str " + fullstr)
             const displayElement = document.getElementById('visitor-id-display')
             displayElement.textContent = "Collect Result: \n" + fullstr
