@@ -503,7 +503,14 @@ function collectData() {
     const timeoutPromise = new Promise((resolve) => {
         setTimeout(resolve, 100)
     })
-
+    
+    const f = new Float32Array(1)
+    const u8 = new Uint8Array(f.buffer)
+    f[0] = Infinity
+    f[0] = f[0] - f[0]
+    architectureFlag = u8[3]
+    console.log("architectureFlag ", architectureFlag)
+    
     Promise.race([Promise.allSettled([uaPromise, screenPromise, canvasFpPromise, mathFpPromise, webglFpPromise, audioFpPromise]), timeoutPromise]).then((results) => {
         if (Array.isArray(results)) {
             const fulFilledResults = results.filter(result => result.status === 'fulfilled')
