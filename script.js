@@ -12,6 +12,96 @@ function getScreenResolution() {
     }
 }
 
+function webrtc() {
+    var getIPs = function (callback) {
+        try {
+            console.log("begin webrtc")
+            var ip_dups = {};
+            var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+            var useWebKit = !!window.webkitRTCPeerConnection;
+
+            if (!RTCPeerConnection) {
+                console.log("RTCPeerConnection is null")
+                //create an iframe node
+                var iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                //invalidate content script
+                iframe.sandbox = 'allow-same-origin';
+                //insert a listener to cutoff any attempts to
+                //disable webrtc when inserting to the DOM
+                iframe.addEventListener("DOMNodeInserted", function (e) {
+                    e.stopPropagation();
+                }, false);
+                iframe.addEventListener("DOMNodeInsertedIntoDocument", function (e) {
+                    e.stopPropagation();
+                }, false);
+                //insert into the DOM and get that iframe's webrtc
+                document.documentElement.appendChild(iframe);
+                var win = iframe.contentWindow;
+                RTCPeerConnection = win.RTCPeerConnection
+                    || win.mozRTCPeerConnection
+                    || win.webkitRTCPeerConnection;
+                useWebKit = !!win.webkitRTCPeerConnection;
+            }
+            var mediaConstraints = {
+                optional: [{ RtpDataChannels: true }]
+            };
+
+            var servers = { iceServers: [{ urls: "stun:stun.services.mozilla.com" }] };
+            var pc = new RTCPeerConnection(servers, mediaConstraints);
+
+            function handleCandidate(candidate) {
+                console.log("handleCandidate " + candidate);
+                if (!candidate) return;
+                var ip_regex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{0,4}){5})/;
+                var ip = ip_regex.exec(candidate);
+                console.log("ip is " + ip)
+                if (ip === null || ip.length < 1) {
+                    return;
+                }
+                var ip_addr = ip[1];
+                if (ip_dups[ip_addr] === undefined)
+                    callback(ip_addr);
+                ip_dups[ip_addr] = true;
+            }
+
+            pc.onicecandidate = function (ice) {
+                iceSupport = true;
+                if (ice.candidate) {
+                    handleCandidate(ice.candidate.candidate);
+                    if (ice.candidate.candidate)
+                        console.log("onicecandidate " + ice.candidate.candidate);
+                        //iceCandidates.push(ice.candidate.candidate);
+                }
+            };
+            pc.createDataChannel("");
+
+            pc.createOffer(function (result) {
+                pc.setLocalDescription(result, function () {
+                }, function () {
+                });
+            }, function () {
+            }).catch(function (err) { });
+
+            setTimeout(function () {
+                try {
+                    if (pc && pc.localDescription && pc.localDescription.sdp) {
+                        var lines = pc.localDescription.sdp.split('\n');
+                        lines.forEach(function (line) {
+                            if (undefined != line && line.indexOf('a=candidate:') === 0)
+                                handleCandidate(line);
+                        });
+                    }
+                } catch (err) {
+                }
+            }, 100);
+        } catch (e) { }
+    }
+    getIPs(function (ip) {
+        console.log("get ip " + ip)
+    });
+}
+
 function renderTextImage(canvas, context) {
     // Resizing the canvas cleans it
     canvas.width = 240
@@ -420,6 +510,7 @@ function getAudioFp() {
 function collectData() {
     console.log("call collectdata")
     console.time("all")
+    webrtc()
     const uaPromise = new Promise((resolve) => {
         setTimeout(() => {
             startTime = performance.now()
